@@ -7,6 +7,7 @@ import logging
 from collections import OrderedDict
 from functools import wraps
 
+from django import VERSION as DJANGO_VERSION
 from django.core import checks
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import ForeignObject
@@ -200,7 +201,12 @@ class CompositeForeignKey(ForeignObject):
             if isinstance(v, RawFieldValue)
         }
 
-    def get_extra_restriction(self, where_class, alias, related_alias):
+    def get_extra_restriction(self, *args):
+        if DJANGO_VERSION >= (4, 0):
+            alias, related_alias = args
+        else:
+            _, alias, related_alias = args
+
         constraint = WhereNode(connector=AND)
         for remote, local in self._raw_fields.items():
             lookup = local.get_lookup(self, self.related_model._meta.get_field(remote), alias)
