@@ -26,7 +26,7 @@ with open('README.rst') as readme_file:
 
 setup(
     name='django-composite-foreignkey',
-    version=version,
+    version=os.environ.get('VERSION', version),
     description="""composite foreignkey support for django""",
     long_description=readme,
     author='Darius BERNARD',
