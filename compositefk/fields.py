@@ -57,7 +57,14 @@ class CompositeForeignKey(ForeignObject):
             # we make something nasty : we update the collector to
             # skip the local field which does not have a dbcolumn
             try:
-                del collector.field_updates[self.model][(self, None)]
+                if DJANGO_VERSION >= (4, 2):
+                    # In Django 4.2.x branch ``field_updates`` has new signature:
+                    # self.field_updates = defaultdict(list)
+                    del collector.field_updates[self, None]
+                else:
+                    # Prior Django 4.2.x ``field_updates`` signature was:
+                    # self.field_updates = defaultdict(partial(defaultdict, set))
+                    del collector.field_updates[self.model][self, None]
             except KeyError:
                 pass
             return res
